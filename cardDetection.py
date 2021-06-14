@@ -8,6 +8,8 @@ from tensorflow.keras.models import *
 
 import dataset_aug as dataset_gen
 
+STEPS_PER_EPOCH = 25
+
 
 def get_model(dim=(256, 128, 3), out=94, use_new=False):
     model_is_exist = os.path.exists("%sdetection_model.h5" % card_detection_folder)
@@ -20,13 +22,12 @@ def get_model(dim=(256, 128, 3), out=94, use_new=False):
 def get_conv_model(dim=(256, 128, 3), out=94):
     inp_shape = dim
     drop = .25
-    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-2)
 
     model = Sequential()
-    model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="valid",
+    model.add(Conv2D(filters= 3758, kernel_size=(3, 3), padding="valid",
                      input_shape=inp_shape, activation="relu"))
 
-    model.add(Dropout(0.25))
+    model.add(Dropout(drop))
 
     model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="valid", activation="relu"))
 
@@ -63,7 +64,6 @@ def get_conv_model(dim=(256, 128, 3), out=94):
     model.add(Dropout(drop))
 
     model.add(Flatten())
-    # полносвязный слой
     model.add(Dense(1024, activation='relu'))
     model.add(Dropout(drop))
     model.add(Dense(512, activation='relu'))
@@ -75,13 +75,13 @@ def get_conv_model(dim=(256, 128, 3), out=94):
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(drop))
     model.add(Dense(out, activation="softmax"))
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
     return model
 
 
-train_gen = dataset_gen.data_gen(batch_size=32, aug=True)
+data, data_len = dataset_gen.get_data()
+train_gen = dataset_gen.data_gen(batch_size=32, aug=False)
 test_gen = dataset_gen.data_gen(batch_size=8, aug=False)
-
+# tensorboard
 log_dir = "logs/fit/" + datetime.now().strftime("%Y%m%d-%H-%M-%S")
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 card_detection_folder = "models/cardDetection/"
@@ -91,15 +91,24 @@ checkpoint1 = ModelCheckpoint("%sdetection_model_accuracy.h5" % card_detection_f
                               verbose=1,
                               save_best_only=True, mode='auto', period=1)
 
-model = get_model(dim=(256, 128, 3), out=datalen+1)
+lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
+    1e-3,
+    decay_steps=STEPS_PER_EPOCH * 1000,
+    decay_rate=1,
+    staircase=False)
+
+optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+
+model = get_model(dim=(256, 128, 3), out=data_len + 1)
+model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 model.summary()
 #
 model.fit(
     train_gen,
-    steps_per_epoch=25,
+    steps_per_epoch=STEPS_PER_EPOCH,
     epochs=1000,
     validation_data=test_gen,
-    validation_steps=2,
+    validation_steps=int(STEPS_PER_EPOCH / 10) + 1,
     verbose=1,
     callbacks=[checkpoint,
                tensorboard_callback,
