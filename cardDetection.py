@@ -24,7 +24,7 @@ def get_conv_model(dim=(256, 128, 3), out=94):
     drop = .25
 
     model = Sequential()
-    model.add(Conv2D(filters= 3758, kernel_size=(3, 3), padding="valid",
+    model.add(Conv2D(filters= 8, kernel_size=(3, 3), padding="valid",
                      input_shape=inp_shape, activation="relu"))
 
     model.add(Dropout(drop))
