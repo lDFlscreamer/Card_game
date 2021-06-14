@@ -9,10 +9,10 @@ from tensorflow.keras.models import *
 import dataset_aug as dataset_gen
 
 
-def get_model(use_new=False):
+def get_model(dim=(256, 128, 3), out=94, use_new=False):
     model_is_exist = os.path.exists("%sdetection_model.h5" % card_detection_folder)
     if use_new or (not model_is_exist):
-        return get_conv_model()
+        return get_conv_model(dim=dim, out=out)
     if model_is_exist:
         return load_model("%sdetection_model.h5" % card_detection_folder)
 
@@ -87,18 +87,19 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram
 card_detection_folder = "models/cardDetection/"
 checkpoint = ModelCheckpoint("%sdetection_model.h5" % card_detection_folder, monitor='loss', verbose=1,
                              save_best_only=True, mode='auto', period=1)
-checkpoint1 = ModelCheckpoint("%sdetection_model_accuracy.h5" % card_detection_folder, monitor='val_accuracy', verbose=1,
+checkpoint1 = ModelCheckpoint("%sdetection_model_accuracy.h5" % card_detection_folder, monitor='val_accuracy',
+                              verbose=1,
                               save_best_only=True, mode='auto', period=1)
 
-model = get_model()
+model = get_model(dim=(256, 128, 3), out=datalen+1)
 model.summary()
 #
 model.fit(
     train_gen,
-    steps_per_epoch=20,
+    steps_per_epoch=25,
     epochs=1000,
     validation_data=test_gen,
-    validation_steps=15,
+    validation_steps=2,
     verbose=1,
     callbacks=[checkpoint,
                tensorboard_callback,
