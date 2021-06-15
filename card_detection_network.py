@@ -16,7 +16,7 @@ TRAIN_BATCH_SIZE = 32
 TEST_BATCH_SIZE = 8
 
 # learning rate schedule
-INITIAL_LR = 1e-1
+INITIAL_LR = 1e-3
 DECAY_RATE = 0.5
 
 # EarlyStopping
@@ -146,7 +146,7 @@ def learn_model(model, train_gen, test_gen, verbose=True):
     )
 
 
-def get_card_detection(with_aug=False):
+def get_card_detection(with_aug=CONSTANT.LEARN_WITH_AUGMENTATION):
     model_is_exist = os.path.exists(CONSTANT.DETECTION_ACCURACY_MODEL_PATH)
     if not model_is_exist:
         data, data_len = dataset_handler.get_data()

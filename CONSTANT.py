@@ -7,6 +7,8 @@ DETECTION_ACCURACY_MODEL_PATH = '%sdetection_model_accuracy.h5' % MODEL_CARD_DET
 DETECTION_MODEL_PATH = '%sdetection_model.h5' % MODEL_CARD_DETECTION_FOLDER_PATH
 TENSORBOARD_LOG_DIR = "logs/fit/"
 
+LEARN_WITH_AUGMENTATION = True
+
 '''
     класс карт: 
 0-нет
