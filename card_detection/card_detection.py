@@ -41,4 +41,18 @@ def test_detection():
     print("True label:", dataset_handler.get_label(argmax_true))
 
 
+def test_aug(aug: bool):
+    # prepare data
+    dataset = dataset_handler.data_gen(batch_size=1, aug=aug)
+    data_sample = next(dataset)
+
+    sample_image = data_sample[0]
+    sample_label = data_sample[1]
+
+    # show card
+    plt.imshow(sample_image[0])
+    plt.show()
+
+
 test_detection()
+
