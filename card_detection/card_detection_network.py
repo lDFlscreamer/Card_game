@@ -22,7 +22,8 @@ TRAIN_BATCH_SIZE = 32
 TEST_BATCH_SIZE = 8
 
 # learning rate schedule
-INITIAL_LR = 1e-3
+LR_SCHEDULE = True
+INITIAL_LR = 1e-1
 DECAY_RATE = 0.5
 
 # EarlyStopping
@@ -140,6 +141,8 @@ def get_callbacks():
 
 
 def get_lr_schedule(init_lr=INITIAL_LR, decay_rate=DECAY_RATE):
+    if not LR_SCHEDULE:
+        return INITIAL_LR
     lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
         initial_learning_rate=init_lr,
         decay_steps=STEPS_PER_EPOCH * 1000,
