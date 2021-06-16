@@ -1,20 +1,35 @@
 import random
 
+from game.card_deck import Card_deck
 from game.player import Player
 
 
 class Game:
     def __init__(self):
         self.castle_owner = 0  # 0 is no one
+
+        self.card_deck = Card_deck()
+        self.card_deck.shufl_all()
+
         self.players = []  # begin with empty
         self.already_performed_spells = []  # begin with empty
 
     def get_players(self):
         return self.players
 
+    def get_already_performed_spells_players(self, exclusion):
+        players = [x for x in self.players
+                   if ((x not in exclusion) or (not x.is_alive()))]
+        if not players:
+            return None
+        return players
+
     def get_left_player(self, player_id, exclusion):
         players = [x for x in self.players
                    if ((x not in exclusion) or (not x.is_alive() or (x.get_id() < player_id)))]
+        if not players:
+            players = [x for x in self.players
+                       if ((x not in exclusion) or (not x.is_alive() or (x.get_id() > player_id)))]
         if not players:
             return None
         players.sort(key=lambda x: x.get_id(), reverse=True)
@@ -23,6 +38,9 @@ class Game:
     def get_right_player(self, player_id, exclusion):
         players = [x for x in self.players
                    if ((x not in exclusion) or (not x.is_alive() or (x.get_id() > player_id)))]
+        if not players:
+            players = [x for x in self.players
+                       if ((x not in exclusion) or (not x.is_alive() or (x.get_id() < player_id)))]
         if not players:
             return None
         players.sort(key=lambda x: x.get_id())

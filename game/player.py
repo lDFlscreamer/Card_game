@@ -12,17 +12,26 @@ class Player:
         self.unfinished_sorcerer_coin = 0
 
         self.damage_delayed = []
+
         self.beasts = []
         self.treasures = []
+        self.delayed_treasure = []
+        self.unfinished_sorcerer_cards = []
 
         self.hand = []
         self.spell = []
 
-    def is_alive(self):
-        return not self.is_dead
-
     def get_id(self):
         return self.id
+
+    def get_health(self):
+        return self.health
+
+    def get_beasts(self):
+        return self.beasts
+
+    def is_alive(self):
+        return not self.is_dead
 
     def get_blood_volume(self):
         return self.blood
@@ -30,11 +39,24 @@ class Player:
     def get_blood(self, amount):
         self.blood += amount
 
-    def lost_blood(self, amount):
+    def lose_blood(self, amount):
         self.blood = -amount
 
     def get_unfinished_sorcerer_coins(self):
         return self.unfinished_sorcerer_coin
+
+    def get_spell(self):
+        return self.spell
+
+    def get_hand(self):
+        return self.hand
+
+    def remove_card_from_hand(self, cards):
+        if all(card in self.hand for card in cards):
+            self.hand = [card for card in self.hand if card not in cards]
+
+    def append_card_to_hand(self, cards):
+        self.hand.extend(cards)
 
     def get_damaged(self, damage):
         if sum(self.damage_delayed) < self.health:
@@ -46,7 +68,8 @@ class Player:
         #     self.is_dead = True
 
     def heal(self, heal):
-        self.health += heal
+        if not self.is_dead:
+            self.health += heal
 
     def create_spell(self, cards):
         if all(card in self.hand for card in cards):
@@ -61,6 +84,12 @@ class Player:
     def add_treasures(self, treasures):
         self.treasures.extend(treasures)
 
+    def add_delayed_treasures(self, treasures):
+        self.delayed_treasure.extend(treasures)
+
     def remove_treasures(self, treasures):
         if all(treasure in self.treasures for treasure in treasures):
             self.treasures = [treasure for treasure in self.treasures if treasure not in treasures]
+
+    def is_surprise(self):
+        return sum(self.damage_delayed) > self.health

@@ -4,10 +4,19 @@ class Card:
         self.card_type = card_type
         self.card_num = card_num,
 
-        self.is_beast = is_beast,
+        self.is_Beast = is_beast,
         self.initiation = initiation,
 
         self.function = function
+
+    def get_card_class(self):
+        return self.card_class
+
+    def get_card_type(self):
+        return self.card_type
+
+    def is_beast(self):
+        return self.is_Beast
 
     def __eq__(self, other):
         """Overrides the default implementation"""
