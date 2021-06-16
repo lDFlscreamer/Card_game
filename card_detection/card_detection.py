@@ -1,7 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-import CONSTANT
 import card_detection_network as c_d
 import dataset_handler
 

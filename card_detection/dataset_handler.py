@@ -60,7 +60,7 @@ def prepare_img(filename: str):
 
 
 def get_label(label):
-    return CONSTANT.DATASET_LABEL[label-1]
+    return CONSTANT.DATASET_LABEL[label - 1]
 
 
 def get_index(file_path):

@@ -18,17 +18,17 @@ ACTIVITY_REG = regularizers.l2(1e-5)
 STEPS_PER_EPOCH = 250
 VALIDATION_STEPS_PER_EPOCH = int(STEPS_PER_EPOCH / 10) + 1
 EPOCH_NUMBER = 2000
-TRAIN_BATCH_SIZE = 32
-TEST_BATCH_SIZE = 8
+TRAIN_BATCH_SIZE = 64
+TEST_BATCH_SIZE = 16
 
 # learning rate schedule
-LR_SCHEDULE = True
-INITIAL_LR = 1e-1
+LR_SCHEDULE = False
+INITIAL_LR = 1e-2
 DECAY_RATE = 0.5
 
 # EarlyStopping
 EARLY_STOPPING_METRIC = 'accuracy'
-EARLY_STOPPING_MIN_DELTA = 0
+EARLY_STOPPING_MIN_DELTA = 1e-09
 EARLY_STOPPING_PATIENCE = 125
 EARLY_STOPPING_BASELINE = 0.8
 
@@ -38,71 +38,55 @@ def get_conv_model(dim=CONSTANT.INPUT_IMAGE_SHAPE, out=CONSTANT.OUTPUT_SHAPE, dr
     drop = dropout
 
     model = Sequential()
-    model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="valid",
+    model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="same",
                      input_shape=inp_shape, activation="relu"))
-
+    model.add(BatchNormalization())
     model.add(Dropout(drop))
 
-    model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="valid", activation="relu"))
-
-    model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="valid", activation="relu"))
-
-    model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="valid", activation="relu"))
-
+    model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="same", activation="relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(drop))
 
-    model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="valid", activation="relu"))
-
-    model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="valid", activation="relu"))
-
-    model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="valid", activation="relu"))
-
+    model.add(Conv2D(filters=16, kernel_size=(3, 3), padding="same", activation="relu"))
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="valid", activation="relu"))
+    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="same", activation="relu"))
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding="valid", activation="relu"))
-
-    model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="valid", activation="relu"))
-
+    model.add(Conv2D(filters=32, kernel_size=(3, 3), padding="same", activation="relu"))
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     model.add(Conv2D(filters=16, kernel_size=(3, 3), padding="valid", activation="relu"))
+    model.add(BatchNormalization())
 
     model.add(Conv2D(filters=8, kernel_size=(3, 3), padding="valid", activation="relu"))
-
-    model.add(Conv2D(filters=4, kernel_size=(3, 3), padding="valid", activation="relu"))
-
-    model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(drop))
 
     model.add(Flatten())
-    model.add(Dense(1024, activation='relu',
-                    kernel_regularizer=KERNEL_REG,
-                    bias_regularizer=BIAS_REG,
-                    activity_regularizer=ACTIVITY_REG))
-    model.add(Dropout(drop))
     model.add(Dense(512, activation='relu',
                     kernel_regularizer=KERNEL_REG,
                     bias_regularizer=BIAS_REG,
                     activity_regularizer=ACTIVITY_REG))
+    model.add(BatchNormalization())
     model.add(Dropout(drop))
+
     model.add(Dense(256, activation='relu',
                     kernel_regularizer=KERNEL_REG,
                     bias_regularizer=BIAS_REG,
                     activity_regularizer=ACTIVITY_REG))
+    model.add(BatchNormalization())
     model.add(Dropout(drop))
-    model.add(Dense(256, activation='relu',
-                    kernel_regularizer=KERNEL_REG,
-                    bias_regularizer=BIAS_REG,
-                    activity_regularizer=ACTIVITY_REG))
-    model.add(Dropout(drop))
+
     model.add(Dense(128, activation='relu',
                     kernel_regularizer=KERNEL_REG,
                     bias_regularizer=BIAS_REG,
                     activity_regularizer=ACTIVITY_REG))
+    model.add(BatchNormalization())
     model.add(Dropout(drop))
+
     model.add(Dense(out, activation="softmax"))
     return model
 
@@ -116,8 +100,9 @@ def get_model(out=CONSTANT.OUTPUT_SHAPE, use_new=False):
 
 
 def get_callbacks():
-    log_dir = CONSTANT.TENSORBOARD_LOG_DIR + datetime.now().strftime("%Y%m%d-%H-%M-%S")
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+    log_dir = CONSTANT.DETECTION_LOG_DIR + datetime.now().strftime("%Y%m%d-%H-%M-%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1,
+                                                          write_images=CONSTANT.TENSORBOARD_WRITE_IMAGES)
     loss_checkpoint = ModelCheckpoint(CONSTANT.DETECTION_MODEL_PATH, monitor='accuracy', verbose=1,
                                       save_best_only=True, mode='auto', save_freq='epoch')
     accuracy_checkpoint = ModelCheckpoint(CONSTANT.DETECTION_ACCURACY_MODEL_PATH,
