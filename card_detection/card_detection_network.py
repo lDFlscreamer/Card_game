@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 import tensorflow as tf
+from keras import regularizers
 from keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import *
 from tensorflow.keras.models import *
@@ -9,7 +10,12 @@ from tensorflow.keras.models import *
 import CONSTANT
 import dataset_handler
 
-STEPS_PER_EPOCH = 25
+DROPOUT = 0.5
+KERNEL_REG = regularizers.l1_l2(l1=1e-5, l2=1e-4)
+BIAS_REG = regularizers.l2(1e-4)
+ACTIVITY_REG = regularizers.l2(1e-5)
+
+STEPS_PER_EPOCH = 250
 VALIDATION_STEPS_PER_EPOCH = int(STEPS_PER_EPOCH / 10) + 1
 EPOCH_NUMBER = 2000
 TRAIN_BATCH_SIZE = 32
@@ -20,12 +26,13 @@ INITIAL_LR = 1e-3
 DECAY_RATE = 0.5
 
 # EarlyStopping
+EARLY_STOPPING_METRIC = 'accuracy'
 EARLY_STOPPING_MIN_DELTA = 0
-EARLY_STOPPING_PATIENCE = 100
+EARLY_STOPPING_PATIENCE = 125
 EARLY_STOPPING_BASELINE = 0.8
 
 
-def get_conv_model(dim=CONSTANT.INPUT_IMAGE_SHAPE, out=CONSTANT.OUTPUT_SHAPE, dropout=0.6):
+def get_conv_model(dim=CONSTANT.INPUT_IMAGE_SHAPE, out=CONSTANT.OUTPUT_SHAPE, dropout=DROPOUT):
     inp_shape = dim
     drop = dropout
 
@@ -70,15 +77,30 @@ def get_conv_model(dim=CONSTANT.INPUT_IMAGE_SHAPE, out=CONSTANT.OUTPUT_SHAPE, dr
     model.add(Dropout(drop))
 
     model.add(Flatten())
-    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(1024, activation='relu',
+                    kernel_regularizer=KERNEL_REG,
+                    bias_regularizer=BIAS_REG,
+                    activity_regularizer=ACTIVITY_REG))
     model.add(Dropout(drop))
-    model.add(Dense(512, activation='relu'))
+    model.add(Dense(512, activation='relu',
+                    kernel_regularizer=KERNEL_REG,
+                    bias_regularizer=BIAS_REG,
+                    activity_regularizer=ACTIVITY_REG))
     model.add(Dropout(drop))
-    model.add(Dense(256, activation='relu'))
+    model.add(Dense(256, activation='relu',
+                    kernel_regularizer=KERNEL_REG,
+                    bias_regularizer=BIAS_REG,
+                    activity_regularizer=ACTIVITY_REG))
     model.add(Dropout(drop))
-    model.add(Dense(256, activation='relu'))
+    model.add(Dense(256, activation='relu',
+                    kernel_regularizer=KERNEL_REG,
+                    bias_regularizer=BIAS_REG,
+                    activity_regularizer=ACTIVITY_REG))
     model.add(Dropout(drop))
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(128, activation='relu',
+                    kernel_regularizer=KERNEL_REG,
+                    bias_regularizer=BIAS_REG,
+                    activity_regularizer=ACTIVITY_REG))
     model.add(Dropout(drop))
     model.add(Dense(out, activation="softmax"))
     return model
@@ -101,7 +123,7 @@ def get_callbacks():
                                           monitor='val_accuracy',
                                           verbose=1,
                                           save_best_only=True, mode='auto', period=1)
-    early_stopping = tf.keras.callbacks.EarlyStopping(monitor="val_accuracy",
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor=EARLY_STOPPING_METRIC,
                                                       min_delta=EARLY_STOPPING_MIN_DELTA,
                                                       patience=EARLY_STOPPING_PATIENCE,
                                                       verbose=1,

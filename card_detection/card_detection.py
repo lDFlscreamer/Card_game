@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+import CONSTANT
 import card_detection_network as c_d
 import dataset_handler
 
@@ -53,6 +54,7 @@ def test_aug(aug: bool):
     plt.imshow(sample_image[0])
     plt.show()
 
+# test_aug(CONSTANT.LEARN_WITH_AUGMENTATION)
 
 test_detection()
 
