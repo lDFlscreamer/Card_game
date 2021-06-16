@@ -43,8 +43,10 @@ seq = iaa.Sequential([
     iaa.ScaleY((0.7, 1))
 ])
 
+
 def prepare_imgs(filenames):
     return [prepare_img(x) for x in filenames]
+
 
 def prepare_img(filename: str):
     file_is_exist = os.path.exists(filename)
@@ -57,15 +59,19 @@ def prepare_img(filename: str):
     return img
 
 
-def get_label(label, data=None):
-    if not data:
-        data = get_data()[0]
-    basename = os.path.basename(data[label])
-    return os.path.splitext(basename)[0]
+def get_label(label):
+    return CONSTANT.DATASET_LABEL[label-1]
+
+
+def get_index(file_path):
+    basename = os.path.basename(file_path)
+    filename = os.path.splitext(basename)[0]
+    filename = filename.split("_")[0]
+    return CONSTANT.DATASET_LABEL.index(filename) + 1
 
 
 def get_data():
-    data = glob.glob('dataset\card\*')
+    data = glob.glob("%s/*" % CONSTANT.DATASET_FOLDER)
     data_len = len(data)
     data = {k + 1: v for k, v in enumerate(data)}
     return data, data_len
