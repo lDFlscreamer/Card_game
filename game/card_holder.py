@@ -214,7 +214,10 @@ def card_251(game: Game, player: Player):
 
 
 def card_252(game: Game, player: Player):
-    pass
+    right_player = game.get_right_player(player_id=player.get_id(), exclusion=[player])
+    if right_player:
+        right_player.get_damaged(2)
+    # todo: surprise
 
 
 CARD_FUNCTION_LIST = {
