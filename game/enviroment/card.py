@@ -1,5 +1,6 @@
 class Card:
-    def __init__(self, card_class, card_type, card_num,is_beast, function, initiation):
+    def __init__(self, id, card_class, card_type, card_num, is_beast, function, initiation):
+        self.id = id
         self.card_class = card_class
         self.card_type = card_type
         self.card_num = card_num,
@@ -8,6 +9,9 @@ class Card:
         self.initiation = initiation,
 
         self.function = function
+
+    def get_id(self):
+        return self.id
 
     def get_card_class(self):
         return self.card_class

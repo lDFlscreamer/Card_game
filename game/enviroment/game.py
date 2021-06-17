@@ -23,6 +23,13 @@ class Game:
             return None
         return players
 
+    def get_all_player(self, exclusion):
+        players = [x for x in self.players
+                   if (x not in exclusion)]
+        if not players:
+            return None
+        return players
+
     def get_left_player(self, player_id, exclusion):
         players = [x for x in self.players
                    if ((x not in exclusion) or (not x.is_alive() or (x.get_id() < player_id)))]

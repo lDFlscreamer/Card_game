@@ -18,7 +18,7 @@ DETECTION_LOG_DIR = '%sdetection/' % TENSORBOARD_LOG_DIR
 
 TENSORBOARD_WRITE_IMAGES = True
 
-LEARN_WITH_AUGMENTATION = True
+LEARN_WITH_AUGMENTATION = False
 
 DATASET_LABEL = ['101', '211', '212', '213', '214', '221', '222', '223', '224', '231', '232', '233', '234', '241',
                  '242', '243', '244', '251', '252', '253', '254', '311', '312', '313', '314', '321', '322', '323',

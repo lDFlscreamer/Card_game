@@ -1,5 +1,6 @@
 import random
 
+from game.enviroment.card import Card
 from game.enviroment.card_holder import SPELL_CARD_DECK, TREASURE_CARD_DECK, UNFINISHED_SORCERER_CARD_DECK
 
 
@@ -23,6 +24,12 @@ class Card_deck:
             return None
         cards_in_deck = [card for card in self.card_deck if card_class or card.get_card_class() == card_class]
         return random.sample(cards_in_deck, amount)
+
+    def get_card_by_id(self, card_id):
+        card: Card
+        for card in self.card_deck:
+            if card.get_id() == card_id:
+                return card
 
     def reset(self):
         self.card_deck = SPELL_CARD_DECK.copy()

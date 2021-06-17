@@ -39,6 +39,8 @@ class Player:
         self.hand = []
         self.spell = []
 
+    def as_array(self):
+        return [self.health,self.blood,len(self.beasts),self.unfinished_sorcerer_coin]
     def get_id(self):
         return self.id
 
@@ -50,6 +52,11 @@ class Player:
 
     def is_alive(self):
         return not self.is_dead
+
+    def kill(self):
+        self.reset()
+        self.is_dead = True
+        self.health = 0
 
     def get_blood_volume(self):
         return self.blood
@@ -79,11 +86,6 @@ class Player:
     def get_damaged(self, damage):
         if sum(self.damage_delayed) < self.health:
             self.damage_delayed.append(damage)
-        # todo: move below to game round rules
-        # self.health -= damage
-        # if self.health <= 0:
-        #     self.health = 0
-        #     self.is_dead = True
 
     def heal(self, heal):
         if not self.is_dead:
@@ -93,6 +95,8 @@ class Player:
         if all(card in self.hand for card in cards):
             self.hand = [card for card in self.hand if card not in cards]
             self.spell = cards
+            return True
+        return False
 
     def append_to_spell(self, cards):
         if all(card in self.hand for card in cards):
